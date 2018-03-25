@@ -5,14 +5,14 @@ class Phone:
         self.model = model
         self.main_url = main_url
         self.comment_urls = []
-        self.comments = []
+        self.comments = ''
         self.comments_date = []
         
     def store_comment_urls(self, url):
         self.comment_urls.append(url)
         
     def store_comment(self, comment):
-        self.comments.append(comment)
+        self.comments += ";;;;;" + comment
 
     def store_comment_date(self, date):
         self.comments_date.append(date)
@@ -81,7 +81,7 @@ def get_model_name_link(website):
                 brand = re.split(" ", brand)[0]
                 phone_model = Phone(brand, all_models[model], all_links[model])
                 phones.append(phone_model)
-        print("currently at " + website)
+        #print("currently at " + website)
         return phones
     except ssl.SSLError:
         print("Oops SSLError faced on " + website)
@@ -170,7 +170,7 @@ def get_model_comments_date(phone):
             all_dates = review_page.find_all("li", {"class": "upost"})
             for date in all_dates:
                 date = date.get_text()
-                if (('hour' in date) or ('hours' in date)) :
+                if (('hour' in date) or ('hours' in date) or ('minute' in date) or ('minutes' in date) or ('second' in date) or ('seconds' in date)):
                     date = dt.now().date()
                 else:
                     date = dt.strptime(date, '%d %b %Y').date()
@@ -202,36 +202,36 @@ if __name__ == '__main__':
                 else:
                     print("skipping " + model.name)
         print(all_phones)
+        print(len(all_phones))
         print("Finished storing all phone objects into a list")
         
         # Storing list of all models review url into phone object
         #for brand in range(len(all_phones)):
-        for brand in range(1): # use above for loop to scrape information for ALL phones
+        for brand in range(751,851):
             get_model_comments_urls(all_phones[brand])
             print("Done with " + all_phones[brand].model + " review URLs!")
-            print(all_phones[brand].comment_urls)
+            #print(all_phones[brand].comment_urls)
 
         # Storing list of all models review into phone object    
         #for brand in range(len(all_phones)):
-        for brand in range(1): # use above for loop to scrape information for ALL phones
+        for brand in range(751,851):
             get_model_comments(all_phones[brand])
             print("Done with " + all_phones[brand].model + " reviews!")
-            print(all_phones[brand].comments)
+            #print(all_phones[brand].comments)
 
-        # Storing list of all models review dates into phone object
-        #for brand in range(len(all_phones)):
-        for brand in range(1): # use above for loop to scrape information for ALL phones
+        for brand in range(751,851):
             get_model_comments_date(all_phones[brand])
             print("Done with " + all_phones[brand].model + " date of reviews!")
-            print(all_phones[brand].comments_date)
+            #print(all_phones[brand].comments_date)
+            print(brand)
 
         # Creating DataFrame to store phone model comments
-        phone_df = pd.DataFrame(columns=['phone_brand', 'phone_model', 'phone_reviews', 'phone_reviews_dates'])
+        phone_df = pd.DataFrame(columns=['phone_brand', 'phone_model', 'phone_reviews', 'phone_reviews_dates'], dtype='O')
 
         print("Adding into dataframe now...")
         # Append all phone information to DataFrame
         #for phone in range(len(all_phones)):
-        for phone in range(1):
+        for phone in range(751,851):
             phone_brand = all_phones[phone].brand
             phone_model = all_phones[phone].model
             phone_reviews = all_phones[phone].comments
@@ -239,6 +239,5 @@ if __name__ == '__main__':
             new_row = [phone_brand, phone_model, phone_reviews, phone_reviews_dates]
             phone_df.loc[len(phone_df)] = new_row
 
-        phone_df.to_csv("test.csv", encoding='utf-8', index=False)
-        phone_df.to_json(orient='split')
-        print(phone_df)
+        phone_df.to_csv("phone_models_751to850.csv", encoding='utf-8', index=False)
+        print("completed!")
